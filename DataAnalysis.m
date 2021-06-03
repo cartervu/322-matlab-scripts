@@ -85,7 +85,7 @@ eqbT = -194 % deg C, this is an approximation. Would be better to get the long-r
 
 % Task 2: averages and +-sigma bounds
 
-SizeNames = ["1-38","1-50","1-63","1-75","1-88","2-00","Control"];
+SizeNames = ["Diam-1-38","Diam-1-50","Diam-1-63","Diam-1-75","Diam-1-88","Diam-2-00","Control"];
 for i = 0:6
     index = 2*i+1; % = [1, 3, 5, 7, 9]
     TMat1 = DataCell{index}; % load run 1
@@ -127,14 +127,14 @@ for i = 0:6
     if i ~= 6 % data runs
         if length(tvec1) >= length(tvec2)
             TCell{1,i+1} = tvec1.';
-            TMat2N = [TMat2; zeros(length(tvec1)-length(tvec2),4)+eqbT]; % append -195.8 to the values after equilibrium is reached
+            TMat2N = [TMat2; zeros(length(tvec1)-length(tvec2),4)+eqbT]; % append -194 to the values after equilibrium is reached
             TCell{2,i+1} = (TMat1 + TMat2N)/2; 
             TCell{3,i+1} = 1/(2*sqrt(2))*abs(TMat1 - TMat2N);% sigma, std. dev
             TCell{8,i+1} = TMat1;
             TCell{9,i+1} = TMat2N;
         elseif length(tvec1) < length(tvec2)
             TCell{1,i+1} = tvec2.';
-            TMat1N = [TMat1; zeros(length(tvec2)-length(tvec1),4)+eqbT]; % append -195.8 to the values after equilibrium is reached
+            TMat1N = [TMat1; zeros(length(tvec2)-length(tvec1),4)+eqbT]; % append -194 to the values after equilibrium is reached
             TCell{2,i+1} = (TMat2 + TMat1N)/2; 
             TCell{3,i+1} = 1/(2*sqrt(2))*abs(TMat1N - TMat2);% sigma, std. dev
             TCell{8,i+1} = TMat1N;
@@ -145,7 +145,7 @@ for i = 0:6
             clear TMat1N
             clear TMat2N
             TCell{1,i+1} = tvec1.';
-            TMat2N = [TMat2; zeros(length(tvec1)-length(tvec2),4)+eqbT]; % append -195.8 to the values after equilibrium is reached
+            TMat2N = [TMat2; zeros(length(tvec1)-length(tvec2),4)+eqbT]; % append -194 to the values after equilibrium is reached
             TCell{2,i+1} = (sum(TMat1,2) + sum(TMat2N,2))/8; 
             TMat = [TMat1, TMat2N];
             TCell{3,i+1} = std(TMat,0,2); %STD DEV
@@ -156,7 +156,7 @@ for i = 0:6
             clear TMat1N
             clear TMat2N
             TCell{1,i+1} = tvec2.';
-            TMat1N = [TMat1; zeros(length(tvec2)-length(tvec1),4)+eqbT]; % append -195.8 to the values after equilibrium is reached
+            TMat1N = [TMat1; zeros(length(tvec2)-length(tvec1),4)+eqbT]; % append -194 to the values after equilibrium is reached
             TCell{2,i+1} = (sum(TMat1,2) + sum(TMat1N,2))/8; 
             TMat = [TMat1, TMat1N];
             TCell{3,i+1} = std(TMat,0,2); %STD DEV
@@ -206,11 +206,13 @@ for i = 0:6
     title(SizeNames(i+1))
     set(gca,'FontSize',20)
     
-    if i~=4 || probe~=4
-        legend('Probe 1-1','Probe 2-1','Probe 1-2','Probe 2-2','Probe 1-3','Probe 2-3','Probe 1-4','Probe 2-4')
+    if i == 6
+        break
+    elseif i~=4 || probe~=4
+        legend('Run 1 Central','Run 2 Central','Run 1 Bottom','Run 2 Bottom','Run 1 Equatorial','Run 2 Equatorial','Run 1 Top','Run 2 Top')
         
     else
-        legend('Probe 1-1','Probe 2-1','Probe 1-2','Probe 2-2','Probe 1-3','Probe 2-3','Probe 2-4')
+        legend('Run 1 Central','Run 2 Central','Run 1 Bottom','Run 2 Bottom','Run 1 Equatorial','Run 2 Equatorial','Run 2 Top') % run 1 top removed
     end
     saveas(gcf,strcat('Raw-T-t-',SizeNames(i+1),'.jpg'))
 end
@@ -232,7 +234,7 @@ end
 close all; clc;
 cd(FigPath)
 
-
+probenames = ["Central","Bottom","Equatorial","Top"];
 for i = 0:6
     if i == 6
         figure()
@@ -244,7 +246,7 @@ for i = 0:6
         plot(TCell{1,i+1},TCell{7,i+1}(:),'LineWidth',thiccness) % -2sigma
 %         plot(TCell{1,i+1},TCell{8,i+1}(:),'LineWidth',thiccness) % Run1
 %         plot(TCell{1,i+1},TCell{9,i+1}(:),'LineWidth',thiccness) % Run2
-        title(SizeNames(i+1))
+        title(strcat(SizeNames(i+1)," Temperature Readout"))
         xlabel('Time (sec)')
         ylabel(['Temperature (' char(176) 'C)'],'Interpreter','latex')
         set(gca,'FontSize',20)
@@ -270,12 +272,12 @@ for i = 0:6
             plot(TCell{1,i+1},TCell{7,i+1}(:,probe),'LineWidth',thiccness) % -2sigma
             plot(TCell{1,i+1},TCell{8,i+1}(:,probe),'LineWidth',thiccness) % Run1
             plot(TCell{1,i+1},TCell{9,i+1}(:,probe),'LineWidth',thiccness) % Run2
-            title(strcat(SizeNames(i+1), ', ', 'probe ',num2str(probe)))
+            title(strcat(SizeNames(i+1), ", ", probenames(probe), " Probe Temperature Readout"))
             xlabel('Time (sec)')
             ylabel(['Temperature (' char(176) 'C)'],'Interpreter','latex')
             set(gca,'FontSize',20)
             legend('+2 $$\sigma$$','+1 $$\sigma$$','avg.','-1 $$\sigma$$','-2 $$\sigma$$','Run 1','Run 2','Interpreter','latex')
-            saveas(gcf,strcat('T-t-',SizeNames(i+1),'-','probe','-',num2str(probe),'.jpg'))
+            saveas(gcf,strcat('T-t-',SizeNames(i+1),'-','probe','-',probenames(probe),'.jpg'))
         end
     end
 end
@@ -298,26 +300,223 @@ end
 % not going to do this, since statistical uncertainty is so large I don't
 % think that measurement uncertainty will have really any role at all
 
-qdcell = cell();
+% C_p = dQ/dT
+% \Delta Q = \int C_p dT
+% Assume C_p is constant w.r.t. T
+% \Delta Q = C_p\Delta T
+% Assign Q0 = 0, T0 ~ 22K
+% Q = C_p T
+% Qd = C_p Td
+close all; clc;
 
-for i = 1:7
+QCell = cell(7,6);
+qdcell = cell(7,6);
+dt = 0.510204075;
+
+r = flip([2, 1.875, 1.75, 1.625, 1.5, 1.375]/2,2);
+m = get_spheremass(r);
+Cp = 452; % J/kg C
+for i = 1:6
+    Cpm = Cp*m(i);
+    tvec = TCell{1,i};
+
+    if i ~= 5
+        TSurf = TCell{2,i}(:,2:4);
+        T1s = TCell{4,i}(:,2:4);
+        T2s = TCell{5,i}(:,2:4);
+        Tm1s = TCell{6,i}(:,2:4);
+        Tm2s = TCell{7,i}(:,2:4);
+    elseif i == 5
+        TSurf = TCell{2,i}(:,2:3);
+        T1s = TCell{4,i}(:,2:3);
+        T2s = TCell{5,i}(:,2:3);
+        Tm1s = TCell{6,i}(:,2:3);
+        Tm2s = TCell{7,i}(:,2:3);
+    end
     
+    % Average of the three surface Q values:
+    Qavg = sum(TSurf,2)/3*Cpm;
+    Qsigma = std(Qavg); % standard deviation of Q
+    Q1s = sum(T1s,2)/3*Cpm;
+    Q2s = sum(T2s,2)/3*Cpm;
+    Qm1s = sum(Tm1s,2)/3*Cpm;
+    Qm2s = sum(Tm2s,2)/3*Cpm;
+
+    QCell{1,i} = tvec;
+    QCell{2,i} = Qavg;
+    QCell{3,i} = Qsigma;
+    QCell{4,i} = Q1s;
+    QCell{5,i} = Q2s;
+    QCell{6,i} = Qm1s;
+    QCell{7,i} = Qm2s;
+
+    qdcell{1,i} = tvec;
+    qdcell{2,i} = gradient(Qavg,dt);
+    qdcell{3,i} = std(qdcell{2,i}); % standard deviation of qdot
+    qdcell{4,i} = gradient(Q1s,dt);
+    qdcell{5,i} = gradient(Q2s,dt);
+    qdcell{6,i} = gradient(Qm1s,dt);
+    qdcell{7,i} = gradient(Qm2s,dt);
+
+    % Plotting script:
+    figure()
+    hold on
+    % take negative because heat transfer is out, the heat transfer in is
+    % negative. +2 becomes -2, +1 becomes -1, and so on.
+    plot(qdcell{1,i},-qdcell{7,i},'LineWidth',thiccness) % -2
+    plot(qdcell{1,i},-qdcell{2,i},'LineWidth',thiccness) % avg
+    plot(qdcell{1,i},-qdcell{5,i},'LineWidth',thiccness) % +2
+    hold off
+
+
+
+    title(strcat(SizeNames(i), ', $$\dot{Q}$$ vs time'),'Interpreter','latex')
+    xlabel('Time (sec)')
+    ylabel('Heat Transfer Rate $$\dot{Q}$$ (J/s)','Interpreter','latex')
+%     set(gca,'yscale','log')
+    set(gca,'FontSize',20)
+    legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
+    saveas(gcf,strcat('Qdot-',SizeNames(i),'.jpg'))
+        
+    maxval(i) = max(-qdcell{2,i});
+    meanval(i) = mean(-qdcell{2,i});
 end
 
 
+X = categorical({'1-38','1-50','1-63','1-75','1-88','2-00'});
+X = reordercats(X,{'1-38','1-50','1-63','1-75','1-88','2-00'});
+
+figure()
+bar(X,maxval)
+title('Maximum Heat Transfer Rate $$\dot{Q}$$ vs Sphere Diameter','Interpreter','latex')
+xlabel('Sphere Diameter (in)')
+ylabel('Max. Heat Transfer Rate $$\dot{Q}$$ (J/s)','Interpreter','latex')
+set(gca,'FontSize',20)
+saveas(gcf,strcat('maxQdot.jpg'))
+
+figure()
+bar(X,meanval)
+title('Average Heat Transfer Rate $$\dot{Q}$$ vs Sphere Diameter','Interpreter','latex')
+xlabel('Sphere Diameter (in)')
+ylabel('Avg. Heat Transfer Rate $$\dot{Q}$$ (J/s)','Interpreter','latex')
+set(gca,'FontSize',20)
+saveas(gcf,strcat('avgQdot.jpg'))
+
+
+%     qdcell row description:
+   % 1 is tvec
+   % 2 is avg qdot
+   % 3 is sigma
+   % 4 is +1
+   % 5 is +2
+   % 6 is -1
+   % 7 is -2
+   % columns are sphere sizes
+
+   
+
+
+
+   
 
 %% Task 4: Plot mdot 
 % (this will only be a very poor approximation, since we have no
-% idea how much of the heat is dispersed throughout the reservoir of LN2)
-% and how much actually goes into boiling.
+% idea how much of the heat is dispersed throughout the reservoir of LN2
+% and how much actually goes into boiling.)
 
 
+% Assume that no LN2 is heated by the sphere except the LN2 that is boiled
+% (i.e. all LN2 that receives heat receives enough heat to boil it). Then,
+% we take total Q at that point and divide by the heat of vaporization to
+% get the mass it would have vaporized
 
+% Q = HV * m
+% m = Q/HV
+% mdot = Qdot/HV
+close all;
+clc;
+
+MCell = cell(7,6);
+mdcell = cell(7,6);
+HV = 199*1000; % KJ/kg = J/g *1000 g/1 kg
+
+
+for i = 1:6
+    MCell{1,i} = QCell{1,i};
+    mdcell{1,i} = qdcell{1,i};
+    for row = 2:7
+        MCell{row,i} = QCell{row,i}/HV; % unit: kg
+        mdcell{row,i} = qdcell{row,i}/HV; % unit: kg/s
+    end
+    
+    figure()
+    hold on
+    plot(MCell{1,i},-(MCell{5,i}-MCell{2,i}(1)),'LineWidth',thiccness) % +2
+    plot(MCell{1,i},-(MCell{2,i}-MCell{2,i}(1)),'LineWidth',thiccness) % avg
+    plot(MCell{1,i},-(MCell{7,i}-MCell{2,i}(1)),'LineWidth',thiccness) % -2
+    hold off
+    
+    title(strcat(SizeNames(i), ', Boil-off Mass vs Time'),'Interpreter','latex')
+    xlabel('Time (sec)')
+    ylabel('Boil-off Mass $$m$$ (kg)','Interpreter','latex')
+%     set(gca,'yscale','log')
+    set(gca,'FontSize',20)
+    legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
+    saveas(gcf,strcat('M-t-',SizeNames(i),'.jpg'))
+    
+    
+    figure()
+    hold on
+    % negative because mass transfer is out of system, the mass transfer in is
+    % negative.
+    plot(mdcell{1,i},-mdcell{5,i},'LineWidth',thiccness) % +2
+    plot(mdcell{1,i},-mdcell{2,i},'LineWidth',thiccness) % avg
+    plot(mdcell{1,i},-mdcell{7,i},'LineWidth',thiccness) % -2
+    hold off
+
+    title(strcat(SizeNames(i), ',Rate of Boil-Off $$\dot{m}$$ vs Time'),'Interpreter','latex')
+    xlabel('Time (sec)')
+    ylabel('Rate of Boil-off $$\dot{m}$$ (kg/s)','Interpreter','latex')
+%     set(gca,'yscale','log')
+    set(gca,'FontSize',20)
+    legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
+    saveas(gcf,strcat('Mdot-',SizeNames(i),'.jpg'))
+    
+    maxvalm(i) = max(-(MCell{2,i}-MCell{2,i}(1)));
+    maxvald(i) = max(-mdcell{2,i});
+    meanvald(i) = mean(-mdcell{2,i});
+end
+
+figure()
+bar(X,maxvald)
+title('Maximum Boil-off Rate $$\dot{m}$$ vs Sphere Diameter','Interpreter','latex')
+xlabel('Sphere Diameter (in)')
+ylabel('Max. Heat Transfer Rate $$\dot{m}$$ (kg/s)','Interpreter','latex')
+set(gca,'FontSize',20)
+saveas(gcf,strcat('maxQdot.jpg'))
+
+figure()
+bar(X,meanvald)
+title('Average Boil-off Rate $$\dot{m}$$ vs Sphere Diameter','Interpreter','latex')
+xlabel('Sphere Diameter (in)')
+ylabel('Avg. Heat Transfer Rate $$\dot{m}$$ (kg/s)','Interpreter','latex')
+set(gca,'FontSize',20)
+saveas(gcf,strcat('avgmdot.jpg'))
+
+figure()
+bar(X,maxvalm)
+title('Total Boil-off $$m$$ vs Sphere Diameter','Interpreter','latex')
+xlabel('Sphere Diameter (in)')
+ylabel('Total Boil-off $$m$$ (kg)','Interpreter','latex')
+set(gca,'FontSize',20)
+saveas(gcf,strcat('mtot.jpg'))
 
 
 %% Task 5: estimate maximum likelihood values of thermal parameters
 
-% Fit qdot from task 3
+% Fit a value of h to qdot in newton's law of cooling from task 3
+
+
 
 
 %% Functions
@@ -358,4 +557,11 @@ function ret = get_end(y)
         lasteqbindex = length(y);
     end
     ret = [lasteqbindex, y(lasteqbindex), (lasteqbindex-1) * dy]; % index, temp, time
+end
+
+
+function m = get_spheremass(r)
+    rho = 7.8; %g/cm^3
+    rho = rho * 10^-3 * 0.254^3; % kg/1000 g * 0.254^3cm^3/in^3 
+    m = 4/3*pi*r.^3* rho;
 end
