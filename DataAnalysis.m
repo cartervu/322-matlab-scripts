@@ -16,6 +16,8 @@
 % 5) comments from the interim report
 % 6) Color the standard deviations the same (so +-1 sigma is the same,
 % +-2sigma is the same)
+% 7) Rename the probe plot numbers (probe 1, probe 2, etc.) to
+% top/equatorial/bottom/center
 
 %% Extract data from .xlsx, read into cell array
 % Python equivalent: pandas df
@@ -223,7 +225,8 @@ end
 
 % Note: Control run is just all the probes dunked in at once (see video from Arvindh). They should
 % all be averaged together to get a single control T vs t response curve.
-% The delay from t=0 to T=eqb is the time delay of the thermocouples.
+% How much of the time from t0 to equilibrium is the thermocouple response
+% time? This is of interest.
 
 %% Task 2 (cont.): plot sigma bounds for T vs t
 close all; clc;
@@ -252,6 +255,14 @@ for i = 0:6
         for probe = 1:4
             figure()
             hold on
+%             plot(TCell{1,i+1},TCell{5,i+1}(:,probe),'b','LineWidth',thiccness) % +2sigma
+%             plot(TCell{1,i+1},TCell{4,i+1}(:,probe),'r','LineWidth',thiccness) % +1sigma
+%             plot(TCell{1,i+1},TCell{2,i+1}(:,probe),'y','LineWidth',thiccness) % avg
+%             plot(TCell{1,i+1},TCell{6,i+1}(:,probe),'r','LineWidth',thiccness) % -1sigma
+%             plot(TCell{1,i+1},TCell{7,i+1}(:,probe),'b','LineWidth',thiccness) % -2sigma
+%             plot(TCell{1,i+1},TCell{8,i+1}(:,probe),'k','LineWidth',thiccness) % Run1
+%             plot(TCell{1,i+1},TCell{9,i+1}(:,probe),'k','LineWidth',thiccness) % Run2
+
             plot(TCell{1,i+1},TCell{5,i+1}(:,probe),'LineWidth',thiccness) % +2sigma
             plot(TCell{1,i+1},TCell{4,i+1}(:,probe),'LineWidth',thiccness) % +1sigma
             plot(TCell{1,i+1},TCell{2,i+1}(:,probe),'LineWidth',thiccness) % avg
@@ -283,9 +294,15 @@ end
 % sum columns 2:4 and divide by 3 to get average surface temperature as a
 % function of time
 
-% I will also have to do the uncertainty on this averaging
+% I will also have to do the uncertainty on this averaging? Actually I'm
+% not going to do this, since statistical uncertainty is so large I don't
+% think that measurement uncertainty will have really any role at all
 
+qdcell = cell();
 
+for i = 1:7
+    
+end
 
 
 
@@ -300,10 +317,8 @@ end
 
 %% Task 5: estimate maximum likelihood values of thermal parameters
 
+% Fit qdot from task 3
 
-% numerically compute Tdot(t) using deriv builtin
-% Use qdot from task 3
-% compute time-averaged value of h, plot h vs t and look for consistency
 
 %% Functions
 function ret = getstats(x,plotbool)
