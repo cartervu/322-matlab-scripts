@@ -316,6 +316,8 @@ dt = 0.510204075;
 r = flip([2, 1.875, 1.75, 1.625, 1.5, 1.375]/2,2);
 m = get_spheremass(r);
 Cp = 452; % J/kg C
+
+h = 500;
 for i = 1:6
     Cpm = Cp*m(i);
     tvec = TCell{1,i};
@@ -335,37 +337,55 @@ for i = 1:6
     end
     
     % Average of the three surface Q values:
-    Qavg = sum(TSurf,2)/3*Cpm;
-    Qsigma = std(Qavg); % standard deviation of Q
-    Q1s = sum(T1s,2)/3*Cpm;
-    Q2s = sum(T2s,2)/3*Cpm;
-    Qm1s = sum(Tm1s,2)/3*Cpm;
-    Qm2s = sum(Tm2s,2)/3*Cpm;
+%     Qavg = sum(TSurf,2)/3*Cpm;
+%     Qsigma = std(Qavg); % standard deviation of Q
+%     Q1s = sum(T1s,2)/3*Cpm;
+%     Q2s = sum(T2s,2)/3*Cpm;
+%     Qm1s = sum(Tm1s,2)/3*Cpm;
+%     Qm2s = sum(Tm2s,2)/3*Cpm;
 
-    QCell{1,i} = tvec;
-    QCell{2,i} = Qavg;
-    QCell{3,i} = Qsigma;
-    QCell{4,i} = Q1s;
-    QCell{5,i} = Q2s;
-    QCell{6,i} = Qm1s;
-    QCell{7,i} = Qm2s;
+    if i ~= 5
+        numc = 3;
+    elseif i == 5
+        numc = 2;
+    end
+    
+    Qavg = h*get_SA(r(i))*(sum(TSurf,2)/numc +194);
+    Q1s = h*get_SA(r(i))*(sum(T1s,2)/numc +194);
+    Q2s = h*get_SA(r(i))*(sum(T2s,2)/numc +194);
+    Qm1s = h*get_SA(r(i))*(sum(Tm1s,2)/numc +194);
+    Qm2s = h*get_SA(r(i))*(sum(Tm2s,2)/numc +194);
 
     qdcell{1,i} = tvec;
-    qdcell{2,i} = gradient(Qavg,dt);
-    qdcell{3,i} = std(qdcell{2,i}); % standard deviation of qdot
-    qdcell{4,i} = gradient(Q1s,dt);
-    qdcell{5,i} = gradient(Q2s,dt);
-    qdcell{6,i} = gradient(Qm1s,dt);
-    qdcell{7,i} = gradient(Qm2s,dt);
+    qdcell{2,i} = Qavg;
+    qdcell{3,i} = 0; % DON'T USE THIS VALUE IT IS WRONG AND BAD
+    qdcell{4,i} = Q1s;
+    qdcell{5,i} = Q2s;
+    qdcell{6,i} = Qm1s;
+    qdcell{7,i} = Qm2s;
+    
+%     QCell{1,i} = tvec;
+%     QCell{2,i} = Qavg;
+%     QCell{3,i} = Qsigma;
+%     QCell{4,i} = Q1s;
+%     QCell{5,i} = Q2s;
+%     QCell{6,i} = Qm1s;
+%     QCell{7,i} = Qm2s;
+% 
+%     qdcell{1,i} = tvec;
+%     qdcell{2,i} = gradient(Qavg,dt);
+%     qdcell{3,i} = std(qdcell{2,i}); % standard deviation of qdot
+%     qdcell{4,i} = gradient(Q1s,dt);
+%     qdcell{5,i} = gradient(Q2s,dt);
+%     qdcell{6,i} = gradient(Qm1s,dt);
+%     qdcell{7,i} = gradient(Qm2s,dt);
 
     % Plotting script:
     figure()
     hold on
-    % take negative because heat transfer is out, the heat transfer in is
-    % negative. +2 becomes -2, +1 becomes -1, and so on.
-    plot(qdcell{1,i},-qdcell{7,i},'LineWidth',thiccness) % -2
-    plot(qdcell{1,i},-qdcell{2,i},'LineWidth',thiccness) % avg
-    plot(qdcell{1,i},-qdcell{5,i},'LineWidth',thiccness) % +2
+    plot(qdcell{1,i},qdcell{5,i},'LineWidth',thiccness) % +2
+    plot(qdcell{1,i},qdcell{2,i},'LineWidth',thiccness) % avg
+    plot(qdcell{1,i},qdcell{7,i},'LineWidth',thiccness) % -2
     hold off
 
 
@@ -378,8 +398,8 @@ for i = 1:6
     legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
     saveas(gcf,strcat('Qdot-',SizeNames(i),'.jpg'))
         
-    maxval(i) = max(-qdcell{2,i});
-    meanval(i) = mean(-qdcell{2,i});
+    maxval(i) = max(qdcell{2,i});
+    meanval(i) = mean(qdcell{2,i});
 end
 
 
@@ -436,80 +456,80 @@ saveas(gcf,strcat('avgQdot.jpg'))
 close all;
 clc;
 
-MCell = cell(7,6);
+% MCell = cell(7,6);
 mdcell = cell(7,6);
 HV = 199*1000; % KJ/kg = J/g *1000 g/1 kg
 
 
 for i = 1:6
-    MCell{1,i} = QCell{1,i};
+%     MCell{1,i} = QCell{1,i};
     mdcell{1,i} = qdcell{1,i};
     for row = 2:7
-        MCell{row,i} = QCell{row,i}/HV; % unit: kg
-        mdcell{row,i} = qdcell{row,i}/HV; % unit: kg/s
+%         MCell{row,i} = QCell{row,i}/HV; % unit: kg
+        mdcell{row,i} = qdcell{row,i}/HV*10^3; % unit: kg/s * 1000 g/kg
     end
     
-    figure()
-    hold on
-    plot(MCell{1,i},-(MCell{5,i}-MCell{2,i}(1)),'LineWidth',thiccness) % +2
-    plot(MCell{1,i},-(MCell{2,i}-MCell{2,i}(1)),'LineWidth',thiccness) % avg
-    plot(MCell{1,i},-(MCell{7,i}-MCell{2,i}(1)),'LineWidth',thiccness) % -2
-    hold off
-    
-    title(strcat(SizeNames(i), ', Boil-off Mass vs Time'),'Interpreter','latex')
-    xlabel('Time (sec)')
-    ylabel('Boil-off Mass $$m$$ (kg)','Interpreter','latex')
-%     set(gca,'yscale','log')
-    set(gca,'FontSize',20)
-    legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
-    saveas(gcf,strcat('M-t-',SizeNames(i),'.jpg'))
+%     figure()
+%     hold on
+%     plot(MCell{1,i},-(MCell{5,i}-MCell{2,i}(1)),'LineWidth',thiccness) % +2
+%     plot(MCell{1,i},-(MCell{2,i}-MCell{2,i}(1)),'LineWidth',thiccness) % avg
+%     plot(MCell{1,i},-(MCell{7,i}-MCell{2,i}(1)),'LineWidth',thiccness) % -2
+%     hold off
+%     
+%     title(strcat(SizeNames(i), ', Boil-off Mass vs Time'),'Interpreter','latex')
+%     xlabel('Time (sec)')
+%     ylabel('Boil-off Mass $$m$$ (kg)','Interpreter','latex')
+% %     set(gca,'yscale','log')
+%     set(gca,'FontSize',20)
+%     legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
+%     saveas(gcf,strcat('M-t-',SizeNames(i),'.jpg'))
     
     
     figure()
     hold on
     % negative because mass transfer is out of system, the mass transfer in is
     % negative.
-    plot(mdcell{1,i},-mdcell{5,i},'LineWidth',thiccness) % +2
-    plot(mdcell{1,i},-mdcell{2,i},'LineWidth',thiccness) % avg
-    plot(mdcell{1,i},-mdcell{7,i},'LineWidth',thiccness) % -2
+    plot(mdcell{1,i},mdcell{5,i},'LineWidth',thiccness) % +2
+    plot(mdcell{1,i},mdcell{2,i},'LineWidth',thiccness) % avg
+    plot(mdcell{1,i},mdcell{7,i},'LineWidth',thiccness) % -2
     hold off
 
     title(strcat(SizeNames(i), ',Rate of Boil-Off $$\dot{m}$$ vs Time'),'Interpreter','latex')
     xlabel('Time (sec)')
-    ylabel('Rate of Boil-off $$\dot{m}$$ (kg/s)','Interpreter','latex')
+    ylabel('Rate of Boil-off $$\dot{m}$$ (g/s)','Interpreter','latex')
 %     set(gca,'yscale','log')
     set(gca,'FontSize',20)
     legend('+2 $$\sigma$$','avg.','-2 $$\sigma$$','Interpreter','latex')
     saveas(gcf,strcat('Mdot-',SizeNames(i),'.jpg'))
     
-    maxvalm(i) = max(-(MCell{2,i}-MCell{2,i}(1)));
-    maxvald(i) = max(-mdcell{2,i});
-    meanvald(i) = mean(-mdcell{2,i});
+%     maxvalm(i) = max(-(MCell{2,i}-MCell{2,i}(1)));
+    maxvald(i) = max(mdcell{2,i});
+    meanvald(i) = mean(mdcell{2,i});
 end
 
 figure()
 bar(X,maxvald)
 title('Maximum Boil-off Rate $$\dot{m}$$ vs Sphere Diameter','Interpreter','latex')
 xlabel('Sphere Diameter (in)')
-ylabel('Max. Heat Transfer Rate $$\dot{m}$$ (kg/s)','Interpreter','latex')
+ylabel('Max. Boil-off Rate $$\dot{m}$$ (g/s)','Interpreter','latex')
 set(gca,'FontSize',20)
-saveas(gcf,strcat('maxQdot.jpg'))
+saveas(gcf,strcat('maxmdot.jpg'))
 
 figure()
 bar(X,meanvald)
 title('Average Boil-off Rate $$\dot{m}$$ vs Sphere Diameter','Interpreter','latex')
 xlabel('Sphere Diameter (in)')
-ylabel('Avg. Heat Transfer Rate $$\dot{m}$$ (kg/s)','Interpreter','latex')
+ylabel('Avg. Boil-off Rate $$\dot{m}$$ (g/s)','Interpreter','latex')
 set(gca,'FontSize',20)
 saveas(gcf,strcat('avgmdot.jpg'))
 
-figure()
-bar(X,maxvalm)
-title('Total Boil-off $$m$$ vs Sphere Diameter','Interpreter','latex')
-xlabel('Sphere Diameter (in)')
-ylabel('Total Boil-off $$m$$ (kg)','Interpreter','latex')
-set(gca,'FontSize',20)
-saveas(gcf,strcat('mtot.jpg'))
+% figure()
+% bar(X,maxvalm)
+% title('Total Boil-off $$m$$ vs Sphere Diameter','Interpreter','latex')
+% xlabel('Sphere Diameter (in)')
+% ylabel('Total Boil-off $$m$$ (kg)','Interpreter','latex')
+% set(gca,'FontSize',20)
+% saveas(gcf,strcat('mtot.jpg'))
 
 
 %% Task 5: estimate maximum likelihood values of thermal parameters
@@ -528,6 +548,7 @@ for i = 1:6
     Qdotav = qdcell{2,i};
     Tav = TCell{2,i};
     A = get_SA(r(i));
+    
     
     
     
@@ -589,5 +610,5 @@ function m = get_spheremass(r)
 end
 
 function SA = get_SA(r)
-    SA = 4*pi*r.^2;
+    SA = 4*pi*(r*0.0254).^2;
 end
