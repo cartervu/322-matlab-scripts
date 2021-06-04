@@ -516,8 +516,28 @@ saveas(gcf,strcat('mtot.jpg'))
 
 % Fit a value of h to qdot in newton's law of cooling from task 3
 
+% Newton's law of cooling states:
+% Qdot = h A (T-Ta), where qdot is rate of heat out
+% T = Ta + (T0 - Ts)*e^{-hA/C}T
+% Ta is constant, A is constant, Q is not constant, T is not constant.
+close all; clc;
 
+Ta = -194;
+for i = 1:6
+    tvec = TCell{1,i};
+    Qdotav = qdcell{2,i};
+    Tav = TCell{2,i};
+    A = get_SA(r(i));
+    
+    
+    
+%     fo = fitoptions('Method','NonlinearLeastSquares',...
+%                'Lower',[0,0],...
+%                'Upper',[Inf,max(cdate)],...
+%                'StartPoint',[1 1]);
+%     ft = fittype('a*(x-b)^n','problem','n','options',fo);
 
+end
 
 %% Functions
 function ret = getstats(x,plotbool)
@@ -532,6 +552,8 @@ function ret = getstats(x,plotbool)
     end
     ret = [m-2*s, m-s, m, m+s, m+2*s];
 end
+
+
 
 
 function ret = get_start(y)
@@ -564,4 +586,8 @@ function m = get_spheremass(r)
     rho = 7.8; %g/cm^3
     rho = rho * 10^-3 * 0.254^3; % kg/1000 g * 0.254^3cm^3/in^3 
     m = 4/3*pi*r.^3* rho;
+end
+
+function SA = get_SA(r)
+    SA = 4*pi*r.^2;
 end
